@@ -19,8 +19,8 @@ public class CategoryResource {
     @Autowired
     private CategoryRepository categoryService;
 
-    @GetMapping
-    public ResponseEntity<List<Category>> findAll(){
+    @GetMapping(value = /{id})
+    public ResponseEntity<Category> findById(){
 
         List<Category> categories = categoryService.findAll();
         categories.add(new Category(1L, "eletronicos"));

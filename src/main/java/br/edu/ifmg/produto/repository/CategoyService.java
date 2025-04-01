@@ -14,7 +14,7 @@ public class CategoyService {
     private CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public List<Category> findAll(){
+    public List<CategoryDTO> findAll(){
        return categoryRepository.findAll();
     }
 
