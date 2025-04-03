@@ -1,35 +1,35 @@
-//PRIMEIRA CAMADA - A MAIS ABAIXO
 package br.edu.ifmg.produto.entities;
 
 import jakarta.persistence.*;
-
 import java.util.Objects;
 
-
 @Entity
-@Table(name="ID_category")
+@Table(name = "category") // Nome corrigido
 public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY )
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    //@Column(unique = true) //referencia ao id, smp abaixo do referncial
+
     private String name;
 
+    // Construtor padrão
+    public Category() {
+    }
+
+    // Construtor com ID e Nome
+    public Category(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    // Construtor apenas com nome
     public Category(String name) {
         this.name = name;
     }
 
-    public Category(long id) {
-        this.id = id;
-    }
-
-    public Category(long l, String jogos) {
-    }
-
-    public Category() {
-
+    public long getId() {
+        return id;
     }
 
     public void setId(long id) {
@@ -52,7 +52,7 @@ public class Category {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hash(id);
     }
 
     @Override
@@ -62,5 +62,4 @@ public class Category {
                 ", name='" + name + '\'' +
                 '}';
     }
-
 }

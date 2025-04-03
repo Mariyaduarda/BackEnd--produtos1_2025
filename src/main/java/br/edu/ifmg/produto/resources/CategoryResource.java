@@ -4,28 +4,22 @@ import br.edu.ifmg.produto.entities.Category;
 import br.edu.ifmg.produto.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
-@RestController //vai aderir requsições da web
+@RestController
 @RequestMapping(value = "/category")
-
 public class CategoryResource {
 
     @Autowired
-    private CategoryRepository categoryService;
+    private CategoryRepository categoryRepository; // Nome corrigido
 
-    @GetMapping(value = /{id})
-    public ResponseEntity<Category> findById(){
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<Category> findById(@PathVariable Long id) {
+        Optional<Category> category = categoryRepository.findById(id);
 
-        List<Category> categories = categoryService.findAll();
-        categories.add(new Category(1L, "eletronicos"));
-        categories.add(new Category(2L, "jogos"));
-
-        return ResponseEntity.ok().body(categories);
+        return category.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
