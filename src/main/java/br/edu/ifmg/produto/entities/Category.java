@@ -50,6 +50,24 @@ public class Category {
         this.name = name;
     }
 
+    public Instant getCreatAt() {
+        return creatAt;
+    }
+
+    public Instant getUpdateAt() {
+        return updateAt;
+    }
+
+    @PrePersist
+    public void prePersist() {
+         creatAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updateAt = Instant.now();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Category category)) return false;
