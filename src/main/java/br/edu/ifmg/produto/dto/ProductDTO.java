@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
 
-public class ProductDTO {
+public class ProductDTO extends RepresentationModel<ProductDTO> {
     private Long id;
     private String name;
     private String description;

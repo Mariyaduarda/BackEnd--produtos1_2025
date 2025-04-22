@@ -17,13 +17,9 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
     private String description;
-
     private String imageUrl;
-
     private Double price;
 
     private Instant createdAt;
@@ -87,11 +83,11 @@ public class Product {
         this.description = description;
     }
 
-    public Double getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
