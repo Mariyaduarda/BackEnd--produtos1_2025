@@ -1,4 +1,4 @@
-package br.edu.ifmg.produtos.resources;
+package br.edu.ifmg.produto.resources;
 
 import br.edu.ifmg.produto.dto.ProductDTO;
 import br.edu.ifmg.produto.services.ProductService;
@@ -31,41 +31,33 @@ public class ProductResource {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> insert(@RequestBody ProductDTO dto){
+    public ResponseEntity<ProductDTO>
+        insert(@RequestBody ProductDTO dto){
 
         dto = productService.insert(dto);
 
         URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(dto.getId()).toUri();
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(dto.getId())
+                .toUri();
 
         return ResponseEntity.created(uri).body(dto);
 
     }
 
     @PutMapping (value = "/{id}")
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductDTO dto){
+    public ResponseEntity<ProductDTO> update(
+            @PathVariable Long id, @RequestBody ProductDTO dto){
         dto = productService.update(id, dto);
         return ResponseEntity.ok().body(dto);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id){
         productService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(value = "/{id}") //path mapeado
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO dto){{
-        dto = productService.update(id, dto);}
-        return ResponseEntity.ok().body(dto);
-    }
-
-    @PutMapping(value = "/{id}") //path mapeado
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id){
-        productService.delete(id);{
-        return ResponseEntity.noContent().build();
-        }
-    }
 }

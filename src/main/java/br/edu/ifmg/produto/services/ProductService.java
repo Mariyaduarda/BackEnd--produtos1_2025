@@ -1,6 +1,7 @@
 package br.edu.ifmg.produto.services;
 
 import br.edu.ifmg.produto.dto.ProductDTO;
+import br.edu.ifmg.produto.entities.Category;
 import br.edu.ifmg.produto.entities.Product;
 import br.edu.ifmg.produto.repository.ProductRepository;
 import br.edu.ifmg.produto.services.exceptions.DatabaseException;
@@ -31,10 +32,18 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDTO findById(Long id) {
-
+        //o objeto vem englobado no optional
         Optional<Product> obj = productRepository.findById(id);
-        Product product = obj.orElseThrow(() -> new ResourceNotFound("Product not found" + id));
-        return new ProductDTO(product);
+        Product product =
+                obj.orElseThrow(
+                        () ->
+                                new ResourceNotFound("Product not found" + id));
+        return new ProductDTO(product)
+                .add(Linkto().withSelfRel());
+                .add(Linkto().withRel("All products"));
+                .add(Linkto().withSelfRel("Update product"));
+                .add(Linkto().withSelfRel("Delete product"));
+
 
     }
 
@@ -83,6 +92,10 @@ public class ProductService {
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setImageUrl(dto.getImageUrl());
+
+        dto.getCategories()
+                .forEach( c ->
+                        entity.getCategories().add(new Category(c)));
     }
 
 }

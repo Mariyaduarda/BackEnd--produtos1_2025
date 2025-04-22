@@ -1,27 +1,31 @@
 package br.edu.ifmg.produto.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.aos.models.info.Info;
-import io.swagger.v3.aos.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@OpenApiDefinition
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Produto API",
+                version = "1.0",
+                description = "Documentação da API de Produtos",
+                license = @License(name = "Apache 2.0", url = "http://www.ifmg.edu.br")
+        )
+)
 @Configuration
 public class OpenApiConfig {
 
-    @Bean()
-    public OpenAPI customOpenAPI(){
+    @Bean
+    public OpenAPI customOpenAPI() {
         return new OpenAPI()
-            .info(new Info()
-            .title("Produto API")
-            .version("1.0")
-            .license(new License()
-                .name("Apache 2.0")
-                .url("http://www.ifmg.edu.br")
-            ));
-
+                .info(new io.swagger.v3.oas.models.info.Info()
+                        .title("Produto API")
+                        .version("1.0")
+                        .license(new io.swagger.v3.oas.models.info.License()
+                                .name("Apache 2.0")
+                                .url("http://www.ifmg.edu.br")));
     }
-
 }
