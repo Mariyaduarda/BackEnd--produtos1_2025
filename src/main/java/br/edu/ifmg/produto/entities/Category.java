@@ -1,10 +1,12 @@
 package br.edu.ifmg.produto.entities;
 
 import jakarta.persistence.*;
+
+import java.time.Instant;
 import java.util.Objects;
 
 @Entity
-@Table(name = "category") // Nome corrigido
+@Table(name = "tb_category")
 public class Category {
 
     @Id
@@ -13,11 +15,15 @@ public class Category {
 
     private String name;
 
-    // Construtor padrão
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant creatAt;
+    @Column(columnDefinition = "TIMESTAMP WITHOU THE ZONE")
+    private Instant updateAt;
+
     public Category() {
     }
 
-    // Construtor com ID e Nome
+    // construtor com ID e Nome
     public Category(long id, String name) {
         this.id = id;
         this.name = name;

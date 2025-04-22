@@ -1,11 +1,11 @@
 package br.edu.ifmg.produto.services.exceptions;
 
-public class DataBaseException extends RuntimeException {
+public class DatabaseException extends RuntimeException {
 
-    public DataBaseException() {
+    public DatabaseException() {
         super();
     }
-    public DataBaseException(String message) {
+    public DatabaseException(String message) {
         super(message);
     }
 }

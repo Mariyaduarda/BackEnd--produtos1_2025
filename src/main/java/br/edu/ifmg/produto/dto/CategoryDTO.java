@@ -1,24 +1,29 @@
 package br.edu.ifmg.produto.dto;
 
 import br.edu.ifmg.produto.entities.Category;
-
+import   br.edu.ifmg.produto.dto.CategoryDTO;
 public class CategoryDTO {
-    private long id;
-    private String name; // Mudança de "nome" para "name"
 
-    // Construtor correto
-    public CategoryDTO(Long id, String name) { // Ajustado para "name"
+    private long id;
+    private String name; //
+
+    public CategoryDTO() {
+
+    }
+    // construtor
+    public CategoryDTO(Long id, String name) { //
         this.id = id;
         this.name = name;
     }
 
-    // Construtor para converter uma entidade em DTO
+
+
+    // construtor para converter uma entidade em DTO
     public CategoryDTO(Category entity) {
         this.id = entity.getId();
-        this.name = entity.getName(); // Agora os nomes batem
+        this.name = entity.getName();
     }
-
-    // Getters e Setters
+    // getters e setters
     public long getId() {
         return id;
     }
@@ -33,5 +38,13 @@ public class CategoryDTO {
 
     public void setName(String name) { // Mudança de "setNome()" para "setName()"
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "CategoryDTO{" +
+                "id=" + id +
+                ", name= ' " + name + '\'' +
+                '}';
     }
 }
