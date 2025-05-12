@@ -2,42 +2,50 @@ package br.edu.ifmg.produto.dto;
 
 import br.edu.ifmg.produto.entities.Category;
 import br.edu.ifmg.produto.entities.Product;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 
-public class ProductDTO extends RepresentationModel<ProductDTO> {
+public class ProductDTO extends br.edu.ifmg.produto.dto.RepresentationModel<ProductDTO> {
+    @Schema(description = "Database generated ID product")
     private Long id;
+    @Schema(description = "Product name")
     private String name;
+    @Schema(description = "A detailed description of the product")
     private String description;
+    @Schema(description = "Product price")
     private double price;
+    @Schema(description = "Product's image URL")
     private String imageUrl;
-
+    @Schema(description = "Product categories (one or more)")
     private Set<CategoryDTO> categories = new HashSet<>();
 
     public ProductDTO() {
-
     }
-    public ProductDTO(String name, String description, double price, String imageUrl, Set<Category> categories) {
+
+    public ProductDTO(Long id, String name, String description, double price, String imageUrl) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
     }
+
     public ProductDTO(Product entity) {
         this.id = entity.getId();
         this.name = entity.getName();
         this.description = entity.getDescription();
         this.price = entity.getPrice();
         this.imageUrl = entity.getImageUrl();
-
-        entity.getCategories().forEach(c -> categories.add(new CategoryDTO(c)));
+        entity.getCategories().forEach(c -> this.categories.add(new CategoryDTO(c)));
     }
 
     public ProductDTO(Product product, Set<Category> categories) {
         this(product);
-        categories.forEach(c -> this.categories.add(new CategoryDTO(c)));
+        categories.forEach(category -> this.categories.add(new CategoryDTO(category)));
     }
 
     public Long getId() {
@@ -64,11 +72,11 @@ public class ProductDTO extends RepresentationModel<ProductDTO> {
         this.description = description;
     }
 
-    public Double getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
