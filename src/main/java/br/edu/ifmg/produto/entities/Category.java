@@ -3,7 +3,9 @@ package br.edu.ifmg.produto.entities;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_category")
@@ -12,13 +14,14 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     private String name;
-
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant creatAt;
     @Column(columnDefinition = "TIMESTAMP WITHOU THE ZONE")
     private Instant updateAt;
+
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.EAGER)
+    private Set<Product> products = new HashSet<>();
 
     public Category() {
     }
@@ -56,6 +59,22 @@ public class Category {
 
     public Instant getUpdateAt() {
         return updateAt;
+    }
+
+    public void setCreatAt(Instant creatAt) {
+        this.creatAt = creatAt;
+    }
+
+    public void setUpdateAt(Instant updateAt) {
+        this.updateAt = updateAt;
+    }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 
     @PrePersist

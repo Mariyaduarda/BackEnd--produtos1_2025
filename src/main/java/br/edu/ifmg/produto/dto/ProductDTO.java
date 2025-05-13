@@ -3,11 +3,11 @@ package br.edu.ifmg.produto.dto;
 import br.edu.ifmg.produto.entities.Category;
 import br.edu.ifmg.produto.entities.Product;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.hateoas.RepresentationModel;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ProductDTO extends br.edu.ifmg.produto.dto.RepresentationModel<ProductDTO> {
     @Schema(description = "Database generated ID product")
@@ -117,5 +117,13 @@ public class ProductDTO extends br.edu.ifmg.produto.dto.RepresentationModel<Prod
                 ", imageUrl='" + imageUrl + '\'' +
                 ", categories=" + categories +
                 '}';
+    }
+
+    public Iterable<? extends Long> getCategoriesId() {
+        public Set<Long> getCategoriesId {
+            return categories.stream()
+                    .map(CategoryDTO::getId)
+                    .collect(Collectors.toSet());
+        }
     }
 }

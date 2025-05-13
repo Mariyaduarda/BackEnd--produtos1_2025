@@ -74,4 +74,6 @@ public class CategoryService {
 
     }
 
+    public Category getById(Long catId) {
+    }
 }
