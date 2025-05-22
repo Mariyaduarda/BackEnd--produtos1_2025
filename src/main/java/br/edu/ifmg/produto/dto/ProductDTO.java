@@ -119,11 +119,4 @@ public class ProductDTO extends br.edu.ifmg.produto.dto.RepresentationModel<Prod
                 '}';
     }
 
-    public Iterable<? extends Long> getCategoriesId() {
-        public Set<Long> getCategoriesId {
-            return categories.stream()
-                    .map(CategoryDTO::getId)
-                    .collect(Collectors.toSet());
-        }
-    }
 }
