@@ -1,6 +1,6 @@
 package br.edu.ifmg.produto.resources;
 
-import br.edu.ifmg.produto.dto.CategoryDTO;
+import br.edu.ifmg.produto.dtos.CategoryDTO;
 import br.edu.ifmg.produto.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,7 +16,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/categories")
+@RequestMapping(value = "/category")
 public class CategoryResource {
 
     @Autowired
@@ -27,7 +28,7 @@ public class CategoryResource {
             @RequestParam(value = "size", defaultValue = "20") Integer size,
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "id") String orderBy
-    ){
+    ) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.valueOf(direction), orderBy);
 
@@ -36,37 +37,35 @@ public class CategoryResource {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<CategoryDTO> findById(@PathVariable Long id){
-
+    public ResponseEntity<CategoryDTO> findById (@PathVariable Long id) {
         CategoryDTO category = categoryService.findById(id);
         return ResponseEntity.ok().body(category);
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDTO> insert(@RequestBody CategoryDTO dto){
-
-        dto = categoryService.insert(dto);
-
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    public ResponseEntity<CategoryDTO> save(@RequestBody CategoryDTO dto) {
         URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(dto.getId()).toUri();
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(dto.getId())
+                .toUri();
 
+        dto = categoryService.save(dto);
         return ResponseEntity.created(uri).body(dto);
-
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @RequestBody CategoryDTO dto){
-
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @RequestBody CategoryDTO dto) {
         dto = categoryService.update(id, dto);
         return ResponseEntity.ok().body(dto);
-
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
 }
