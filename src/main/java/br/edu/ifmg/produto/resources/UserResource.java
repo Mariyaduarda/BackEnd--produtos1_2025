@@ -1,7 +1,7 @@
 package br.edu.ifmg.produto.resources;
 
-import br.edu.ifmg.produto.dtos.UserDTO;
-import br.edu.ifmg.produto.dtos.UserInsertDTO;
+import br.edu.ifmg.produto.dto.UserDTO;
+import br.edu.ifmg.produto.dto.UserInsertDTO;
 import br.edu.ifmg.produto.services.ProductService;
 import br.edu.ifmg.produto.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
