@@ -1,5 +1,6 @@
 package br.edu.ifmg.produto.entities;
 
+import br.edu.ifmg.produto.dto.CategoryDTO;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -35,6 +36,9 @@ public class Category {
     // Construtor apenas com nome
     public Category(String name) {
         this.name = name;
+    }
+
+    public Category(CategoryDTO c) {
     }
 
     public long getId() {
