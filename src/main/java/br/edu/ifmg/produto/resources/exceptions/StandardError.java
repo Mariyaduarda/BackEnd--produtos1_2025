@@ -2,17 +2,17 @@ package br.edu.ifmg.produto.resources.exceptions;
 
 import java.time.Instant;
 
-public class StandartError {
+public class StandardError {
     private Instant timestamp;
     private Integer status;
     private String error;
     private String message;
     private String path;
 
-    public StandartError() {
+    public StandardError() {
         super();
     }
-    public StandartError(Instant timestamp, String message, String path, String error, Integer status) {
+    public StandardError(Instant timestamp, String message, String path, String error, Integer status) {
         this.timestamp = timestamp;
         this.message = message;
         this.path = path;
