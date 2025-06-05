@@ -1,0 +1,40 @@
+# Configuração do Spring Boot
+spring:
+  # Configuração OAuth2
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${CLIENT_ID:myclientid}
+            client-secret: ${CLIENT_SECRET:myclientsecret}
+            scope:
+              - openid
+              - profile
+              - email
+
+  # Configuração do banco H2
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# Configuração do servidor
+server:
+  port: 8080
+
+# Configurações customizadas da aplicação
+app:
+  jwt:
+    duration: ${JWT_DURATION:86400}
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}

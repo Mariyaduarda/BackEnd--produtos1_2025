@@ -1,6 +1,5 @@
 package br.edu.ifmg.produto.resources;
 
-import br.edu.ifmg.produto.entities.Product;
 import br.edu.ifmg.produto.util.Factory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
@@ -13,13 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.ResultActions;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import br.edu.ifmg.produto.dto.ProductDTO;
+
+import br.edu.ifmg.produto.dtos.ProductDTO;
 
 
 @SpringBootTest

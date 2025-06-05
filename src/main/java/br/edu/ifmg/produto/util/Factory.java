@@ -1,6 +1,6 @@
 package br.edu.ifmg.produto.util;
 
-import br.edu.ifmg.produto.dto.ProductDTO;
+import br.edu.ifmg.produto.dtos.ProductDTO;
 import br.edu.ifmg.produto.entities.Product;
 import br.edu.ifmg.produto.entities.Category;
 

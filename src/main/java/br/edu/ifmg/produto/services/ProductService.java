@@ -1,6 +1,6 @@
 package br.edu.ifmg.produto.services;
 
-import br.edu.ifmg.produto.dto.ProductDTO;
+import br.edu.ifmg.produto.dtos.ProductDTO;
 import br.edu.ifmg.produto.dtos.ProductListDTO;
 import br.edu.ifmg.produto.entities.Category;
 import br.edu.ifmg.produto.entities.Product;
@@ -20,7 +20,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -43,23 +42,19 @@ public class ProductService {
 
     public Page<ProductListDTO> findAllPaged (String name, String categoryId, Pageable pageable) {
         List<Long> categoriesId = null;
-        if(!categoryId.equals("0"))
-        categoriesId =
-                Arrays.stream(categoryId.split(","))
-                        .map(id -> Long.parseLong(id))
-                        .toList();
 
-        Page<ProductProjection> =
-            productRepository.searchProductsBy(categoryId, name);
+        if (!categoryId.equals("0")) {
+            categoriesId = Arrays
+                    .stream(categoryId.split(","))
+                    .map(id -> Long.parseLong(id))
+                    .toList();
+        }
 
-        List<ProductListDTO> dtos =
-            page
-        e
-                    .stream()
-                    .map();
+        Page<ProductProjection> page = productRepository.searchProducts(categoriesId, name, pageable);
 
+        List<ProductListDTO> dtos = page.stream().map(p -> new ProductListDTO(p)).toList();
 
-        return new PageImpl<dtos, pageable, page.getTotalElements>();
+        return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
 
     @Transactional(readOnly = true)

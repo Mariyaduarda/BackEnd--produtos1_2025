@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -36,23 +35,22 @@ import org.springframework.util.Assert;
 public class CustomPasswordAuthenticationProvider implements AuthenticationProvider {
 
     private static final String ERROR_URI = "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";
-
     private final OAuth2AuthorizationService authorizationService;
     private final UserDetailsService userDetailsService;
     private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
     private final PasswordEncoder passwordEncoder;
+    private String username = "";
+    private String password = "";
+    private Set<String> authorizedScopes = new HashSet<>();
 
-    public CustomPasswordAuthenticationProvider(
-            OAuth2AuthorizationService authorizationService,
-            OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator,
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
+    public CustomPasswordAuthenticationProvider(OAuth2AuthorizationService authorizationService,
+                                                OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator,
+                                                UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
 
         Assert.notNull(authorizationService, "authorizationService cannot be null");
         Assert.notNull(tokenGenerator, "TokenGenerator cannot be null");
         Assert.notNull(userDetailsService, "UserDetailsService cannot be null");
         Assert.notNull(passwordEncoder, "PasswordEncoder cannot be null");
-
         this.authorizationService = authorizationService;
         this.tokenGenerator = tokenGenerator;
         this.userDetailsService = userDetailsService;
@@ -61,74 +59,68 @@ public class CustomPasswordAuthenticationProvider implements AuthenticationProvi
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        CustomPasswordAuthenticationToken customToken = (CustomPasswordAuthenticationToken) authentication;
-        OAuth2ClientAuthenticationToken clientPrincipal = getAuthenticatedClientElseThrowInvalidClient(customToken);
 
+        CustomPasswordAuthenticationToken customPasswordAuthenticationToken = (CustomPasswordAuthenticationToken) authentication;
+        OAuth2ClientAuthenticationToken clientPrincipal = getAuthenticatedClientElseThrowInvalidClient(customPasswordAuthenticationToken);
         RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
-        String username = customToken.getUsername();
-        String password = customToken.getPassword();
+        username = customPasswordAuthenticationToken.getUsername();
+        password = customPasswordAuthenticationToken.getPassword();
 
-        UserDetails user;
+        UserDetails user = null;
         try {
             user = userDetailsService.loadUserByUsername(username);
-        } catch (UsernameNotFoundException ex) {
-            throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, "Invalid credentials", ERROR_URI));
+        } catch (UsernameNotFoundException e) {
+            throw new OAuth2AuthenticationException("Invalid credentials");
         }
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, "Invalid credentials", ERROR_URI));
+        if (!passwordEncoder.matches(password, user.getPassword()) || !user.getUsername().equals(username)) {
+            throw new OAuth2AuthenticationException("Invalid credentials");
         }
 
-        Set<String> authorizedScopes = user.getAuthorities().stream()
-                .map(auth -> auth.getAuthority())
+        authorizedScopes = user.getAuthorities().stream()
+                .map(scope -> scope.getAuthority())
                 .filter(scope -> registeredClient.getScopes().contains(scope))
                 .collect(Collectors.toSet());
 
-        // Optional: Atualizar contexto de segurança se necessário
-        CustomUserAuthorities customUser = new CustomUserAuthorities(username, user.getAuthorities());
-        OAuth2ClientAuthenticationToken updatedClientPrincipal = new OAuth2ClientAuthenticationToken(
-                registeredClient, clientPrincipal.getClientAuthenticationMethod(), clientPrincipal.getCredentials(), AuthorityUtils.NO_AUTHORITIES);
-        updatedClientPrincipal.setDetails(customUser);
+        //-----------Create a new Security Context Holder Context----------
+        OAuth2ClientAuthenticationToken oAuth2ClientAuthenticationToken = (OAuth2ClientAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        CustomUserAuthorities customPasswordUser = new CustomUserAuthorities(username, user.getAuthorities());
+        oAuth2ClientAuthenticationToken.setDetails(customPasswordUser);
 
-        var newContext = SecurityContextHolder.createEmptyContext();
-        newContext.setAuthentication(updatedClientPrincipal);
-        SecurityContextHolder.setContext(newContext);
+        var newcontext = SecurityContextHolder.createEmptyContext();
+        newcontext.setAuthentication(oAuth2ClientAuthenticationToken);
+        SecurityContextHolder.setContext(newcontext);
 
-        // Token context builder
+        //-----------TOKEN BUILDERS----------
         DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
                 .registeredClient(registeredClient)
-                .principal(updatedClientPrincipal)
+                .principal(clientPrincipal)
                 .authorizationServerContext(AuthorizationServerContextHolder.getContext())
                 .authorizedScopes(authorizedScopes)
                 .authorizationGrantType(new AuthorizationGrantType("password"))
-                .authorizationGrant(customToken);
+                .authorizationGrant(customPasswordAuthenticationToken);
 
         OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
-                .principalName(username)
+                .attribute(Principal.class.getName(), clientPrincipal)
+                .principalName(clientPrincipal.getName())
                 .authorizationGrantType(new AuthorizationGrantType("password"))
-                .authorizedScopes(authorizedScopes)
-                .attribute(Principal.class.getName(), user);
+                .authorizedScopes(authorizedScopes);
 
-        // Geração do access token
+        //-----------ACCESS TOKEN----------
         OAuth2TokenContext tokenContext = tokenContextBuilder.tokenType(OAuth2TokenType.ACCESS_TOKEN).build();
         OAuth2Token generatedAccessToken = this.tokenGenerator.generate(tokenContext);
-
         if (generatedAccessToken == null) {
-            throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR,
-                    "Failed to generate access token", ERROR_URI));
+            OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR,
+                    "The token generator failed to generate the access token.", ERROR_URI);
+            throw new OAuth2AuthenticationException(error);
         }
 
-        OAuth2AccessToken accessToken = new OAuth2AccessToken(
-                OAuth2AccessToken.TokenType.BEARER,
-                generatedAccessToken.getTokenValue(),
-                generatedAccessToken.getIssuedAt(),
-                generatedAccessToken.getExpiresAt(),
-                authorizedScopes
-        );
-
-        if (generatedAccessToken instanceof ClaimAccessor claims) {
-            authorizationBuilder.token(accessToken, metadata -> metadata.put(
-                    OAuth2Authorization.Token.CLAIMS_METADATA_NAME, claims.getClaims()));
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+                generatedAccessToken.getTokenValue(), generatedAccessToken.getIssuedAt(),
+                generatedAccessToken.getExpiresAt(), tokenContext.getAuthorizedScopes());
+        if (generatedAccessToken instanceof ClaimAccessor) {
+            authorizationBuilder.token(accessToken, (metadata) ->
+                    metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME, ((ClaimAccessor) generatedAccessToken).getClaims()));
         } else {
             authorizationBuilder.accessToken(accessToken);
         }
@@ -136,7 +128,7 @@ public class CustomPasswordAuthenticationProvider implements AuthenticationProvi
         OAuth2Authorization authorization = authorizationBuilder.build();
         this.authorizationService.save(authorization);
 
-        return new OAuth2AccessTokenAuthenticationToken(registeredClient, updatedClientPrincipal, accessToken);
+        return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken);
     }
 
     @Override
@@ -145,10 +137,14 @@ public class CustomPasswordAuthenticationProvider implements AuthenticationProvi
     }
 
     private static OAuth2ClientAuthenticationToken getAuthenticatedClientElseThrowInvalidClient(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof OAuth2ClientAuthenticationToken clientPrincipal
-                && clientPrincipal.isAuthenticated()) {
+
+        OAuth2ClientAuthenticationToken clientPrincipal = null;
+        if (OAuth2ClientAuthenticationToken.class.isAssignableFrom(authentication.getPrincipal().getClass())) {
+            clientPrincipal = (OAuth2ClientAuthenticationToken) authentication.getPrincipal();
+        }
+        if (clientPrincipal != null && clientPrincipal.isAuthenticated()) {
             return clientPrincipal;
         }
-        throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT));
+        throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_CLIENT);
     }
 }

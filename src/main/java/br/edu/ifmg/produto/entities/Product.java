@@ -1,9 +1,6 @@
 package br.edu.ifmg.produto.entities;
 
-import br.edu.ifmg.produto.dto.CategoryDTO;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
 import java.util.HashSet;

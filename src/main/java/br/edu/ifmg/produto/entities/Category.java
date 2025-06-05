@@ -1,6 +1,6 @@
 package br.edu.ifmg.produto.entities;
 
-import br.edu.ifmg.produto.dto.CategoryDTO;
+import br.edu.ifmg.produto.dtos.CategoryDTO;
 import jakarta.persistence.*;
 
 import java.time.Instant;

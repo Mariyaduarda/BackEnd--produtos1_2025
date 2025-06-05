@@ -1,6 +1,6 @@
-package br.edu.ifmg.produto.dto;
+package br.edu.ifmg.produto.dtos;
 
-public class UserInsertDTO extends UserDTO {
+public class UserInsertDTO extends br.edu.ifmg.produto.dtos.UserDTO {
     private String password;
 
     public UserInsertDTO() {

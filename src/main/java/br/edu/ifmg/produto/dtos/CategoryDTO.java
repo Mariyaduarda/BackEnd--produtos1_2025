@@ -1,7 +1,7 @@
-package br.edu.ifmg.produto.dto;
+package br.edu.ifmg.produto.dtos;
 
 import br.edu.ifmg.produto.entities.Category;
-import   br.edu.ifmg.produto.dto.CategoryDTO;
+
 public class CategoryDTO {
 
     private long id;
