@@ -2,6 +2,7 @@ package br.edu.ifmg.produto.resources;
 
 import br.edu.ifmg.produto.dtos.UserDTO;
 import br.edu.ifmg.produto.dtos.UserInsertDTO;
+import br.edu.ifmg.produto.services.ProductService;
 import br.edu.ifmg.produto.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -74,6 +75,29 @@ public class UserResource {
                 .toUri();
 
         UserDTO user = userService.save(dto);
+        return ResponseEntity.created(uri).body(user);
+    }
+
+    @PostMapping(value = "/signup", produces = "application/json")
+    @Operation(
+            description = "Sign up",
+            summary = "You can sign up",
+            responses = {
+                    @ApiResponse(description = "Created", responseCode = "201"),
+                    @ApiResponse(description = "Bad Request", responseCode = "400"),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbidden", responseCode = "403")
+            }
+    )
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<UserDTO> signUp(@Valid @RequestBody UserInsertDTO dto) {
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(dto.getId())
+                .toUri();
+
+        UserDTO user = userService.signUp(dto);
         return ResponseEntity.created(uri).body(user);
     }
 
