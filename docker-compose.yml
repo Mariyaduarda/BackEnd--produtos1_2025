@@ -1,0 +1,62 @@
+from maven:3.9.4-eclipse-temurin-21 AS build  // chamando essa versao de maven de build
+
+COPY src /app/src
+COPY pom.xml /app
+
+WORKDIR /app
+RUN mvn clean install -DskipTests
+
+FROM eclipse-temurin:21-jdk
+COPY --from=build /app/target/produto-0.0.1-SNAPSHOT.jar /app/app.jar
+
+WORKDIR /app
+
+EXPOSE 8080
+
+CMD ["java", "-jar", "app.jar"]
+
+services:
+  db:
+    image: mysql:8.0.39  # Era "myqsl" - estava com erro de digitação
+    container_name: mysql-aula
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - productsNW
+    restart: always
+    ports:
+      - "3308:3306"  # Porta interna do MySQL é 3306, não 3308
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Era "PASSWAORD" - estava com erro de digitação
+      MYSQL_DATABASE: products
+
+  api-products:  # Faltava indentação correta
+    container_name: api-produto
+    build:
+      context: ./
+    ports:  # Faltava indentação
+      - "8080:8080"
+    environment:
+      - CORS_ORIGINS=http://localhost:3000,http://localhost  # Era "CORNS" e tinha espaço desnecessário
+      # Configurações do banco MySQL
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/products
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+    depends_on:  # Era "depends-on" com hífen
+      - db
+    networks:
+      - productsNW  # Faltava espaço após o hífen
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+networks:
+  productsNW:
+    driver: bridge
+
+volumes:
+  dbdata:  # Faltava os dois pontos
